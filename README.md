@@ -251,6 +251,7 @@ This is preferred to returning an unrelated job simply because one keyword or sk
 
 ## Project Structure
 
+```text
 .
 ├── agent.py
 ├── agent_search.py
