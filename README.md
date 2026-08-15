@@ -6,9 +6,9 @@ The system is designed to return relevant job opportunities while explicitly dis
 
 ## Overview
 
-```text
 The search pipeline is:
 
+```text
 User Query
 ↓
 Query Planning
