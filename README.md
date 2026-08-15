@@ -287,6 +287,7 @@ This is preferred to returning an unrelated job simply because one keyword or sk
 ├── pyproject.toml
 ├── .python-version
 └── uv.lock
+```text
 
 ## Validation Philosophy
 
