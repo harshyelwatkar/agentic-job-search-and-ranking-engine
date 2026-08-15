@@ -138,6 +138,7 @@ This is intentionally used for regression testing before performing live Vespa s
 
 The local job corpus is built in stages:
 
+```text
 candidate_jobs.jsonl
 ↓
 normalize_jobs.py
@@ -151,6 +152,7 @@ jobs_clean.jsonl
 job_feed.py
 ↓
 Vespa jobs-clean instance
+```
 
 ### candidate_jobs.jsonl
 
