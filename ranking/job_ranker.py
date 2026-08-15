@@ -630,19 +630,16 @@ def experience_score(
 ) -> float:
     requested = parsed.experience_years
 
-    if requested is not None:
-        job_experience = (
-            _parse_experience_years(
-                job.get("experience")
-            )
+    job_experience = _parse_experience_years(
+        job.get("experience")
+    )
+
+    if job_experience is None:
+        job_experience = _parse_experience_years(
+            job.get("description")
         )
 
-        if job_experience is None:
-            job_experience = (
-                _parse_experience_years(
-                    job.get("description")
-                )
-            )
+    if requested is not None:
 
         if job_experience is None:
             return 0.0
@@ -667,6 +664,18 @@ def experience_score(
         return 0.0
 
     if parsed.entry_level:
+
+        if (
+            job_experience is not None
+        ):
+            if job_experience <= 2:
+                return 1.0
+
+            if job_experience <= 3:
+                return 0.50
+
+            return 0.0
+
         if _has_entry_level_signal(job):
             return 1.0
 
@@ -676,6 +685,18 @@ def experience_score(
         return 0.35
 
     if parsed.senior_level:
+
+        if (
+            job_experience is not None
+        ):
+            if job_experience >= 5:
+                return 1.0
+
+            if job_experience >= 3:
+                return 0.50
+
+            return 0.0
+
         if _has_senior_level_signal(job):
             return 1.0
 
@@ -685,7 +706,6 @@ def experience_score(
         return 0.35
 
     return 0.0
-
 
 # ------------------------------------------------------------
 # Location matching

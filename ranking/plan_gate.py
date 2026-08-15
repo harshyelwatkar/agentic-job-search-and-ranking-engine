@@ -28,7 +28,9 @@ def candidate_passes_plan(
     plan: SearchPlan,
 ) -> tuple[bool, str]:
 
-    parsed = _parsed_query_from_plan(plan)
+    parsed = _parsed_query_from_plan(
+        plan
+    )
 
     features = calculate_features(
         job,
@@ -63,11 +65,6 @@ def candidate_passes_plan(
         )
     )
 
-    matched_skills = features.get(
-        "matched_skills",
-        [],
-    )
-
     has_explicit_location = bool(
         str(
             job.get("location") or ""
@@ -80,85 +77,68 @@ def candidate_passes_plan(
         ).strip()
     )
 
-    # ========================================================
-    # STRICT MODE
-    # ========================================================
+    role_match = (
+        role_score >= 0.30
+    )
 
+    skill_match = (
+        skill_score
+        >= plan.minimum_skill_coverage
+    )
+
+    # Reject explicit conflicts first.
+    if (
+        plan.require_location_match
+        and has_explicit_location
+        and location_score < 1.0
+    ):
+        return (
+            False,
+            "explicit_location_mismatch",
+        )
+
+    if (
+        plan.require_experience_match
+        and has_explicit_experience
+        and experience_score <= 0.0
+    ):
+        return (
+            False,
+            "explicit_experience_mismatch",
+        )
+
+    # Strict mode.
     if plan.gate_mode == "strict":
 
-        # ----------------------------------------------------
-        # Role requirement
-        # ----------------------------------------------------
+        if (
+            plan.role_terms
+            and role_score < 0.50
+        ):
+            return (
+                False,
+                "strict_role_mismatch",
+            )
 
-        if plan.role_terms:
-
-            if role_score < 0.50:
-                return (
-                    False,
-                    "strict_role_mismatch",
-                )
-
-        # ----------------------------------------------------
-        # Skill requirement
-        # ----------------------------------------------------
-
-        if plan.requires_skill_matching:
-
-            if (
-                skill_score
-                < plan.minimum_skill_coverage
-            ):
-                return (
-                    False,
-                    "strict_skill_mismatch",
-                )
-
-        # ----------------------------------------------------
-        # Location requirement
-        #
-        # Missing location = unknown.
-        # Explicit conflicting location = reject.
-        # ----------------------------------------------------
-
-        if plan.require_location_match:
-
-            if has_explicit_location:
-
-                if location_score < 1.0:
-                    return (
-                        False,
-                        "explicit_location_mismatch",
-                    )
-
-        # ----------------------------------------------------
-        # Experience requirement
-        #
-        # Missing experience = unknown.
-        # Explicit conflicting experience = reject.
-        # ----------------------------------------------------
-
-        if plan.require_experience_match:
-
-            if has_explicit_experience:
-
-                if experience_score <= 0.0:
-                    return (
-                        False,
-                        "explicit_experience_mismatch",
-                    )
+        if (
+            plan.requires_skill_matching
+            and skill_score
+            < plan.minimum_skill_coverage
+        ):
+            return (
+                False,
+                "strict_skill_mismatch",
+            )
 
         reasons: list[str] = [
             f"role={role_score:.2f}"
         ]
 
         if plan.requires_skill_matching:
-
             reasons.append(
                 f"skills={skill_score:.2f}"
             )
 
         if plan.require_location_match:
-
             reasons.append(
                 "location_"
                 + (
@@ -169,7 +149,6 @@ def candidate_passes_plan(
             )
 
         if plan.require_experience_match:
-
             reasons.append(
                 "experience_"
                 + (
@@ -184,42 +163,13 @@ def candidate_passes_plan(
             "; ".join(reasons),
         )
 
-    # ========================================================
-    # NORMAL MODE
-    # ========================================================
-
+    # Normal mode.
     if plan.gate_mode == "normal":
-
-        role_match = (
-            role_score >= 0.30
-        )
-
-        skill_match = (
-            skill_score
-            >= plan.minimum_skill_coverage
-        )
-
-        # ----------------------------------------------------
-        # Role + explicit skills
-        #
-        # For a normal query containing both a role and
-        # explicit skills, require evidence from both.
-        #
-        # We intentionally do NOT allow a skill-only match
-        # to pass here. That prevents cases such as:
-        #
-        # "Java Spring Boot developer"
-        #     -> Electrical Systems Engineer
-        #        with only "java"
-        #
-        # from being treated as eligible.
-        # ----------------------------------------------------
 
         if (
             plan.role_terms
             and plan.requires_skill_matching
         ):
-
             if not role_match:
                 return (
                     False,
@@ -238,12 +188,7 @@ def candidate_passes_plan(
                 f"skills={skill_score:.2f}",
             )
 
-        # ----------------------------------------------------
-        # Role-only query
-        # ----------------------------------------------------
-
         if plan.role_terms:
-
             if role_match:
                 return (
                     True,
@@ -255,12 +200,7 @@ def candidate_passes_plan(
                 "role_mismatch",
             )
 
-        # ----------------------------------------------------
-        # Skill-only query
-        # ----------------------------------------------------
-
         if plan.requires_skill_matching:
-
             if skill_match:
                 return (
                     True,
@@ -276,38 +216,26 @@ def candidate_passes_plan(
             False,
             "no_role_or_skill_match",
         )
-    
-    # ========================================================
-    # SOFT MODE
-    # ========================================================
 
+    # Soft mode.
     if plan.gate_mode == "soft":
 
         if role_score > 0.0:
-
             return (
                 True,
                 f"soft_role={role_score:.2f}",
             )
 
-        if matched_skills:
-
+        if skill_score > 0.0:
             return (
                 True,
-                "soft_skill_match="
-                + ",".join(
-                    matched_skills
-                ),
+                f"soft_skill={skill_score:.2f}",
             )
 
         return (
             False,
             "no_structured_match",
         )
-
-    # ========================================================
-    # UNKNOWN MODE
-    # ========================================================
 
     return (
         False,

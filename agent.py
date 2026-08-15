@@ -147,8 +147,8 @@ def build_search_plan(
             else 0.0
         )
 
-        require_location_match = False
-        require_experience_match = False
+        require_location_match = has_location
+        require_experience_match = has_experience
 
     else:
         gate_mode = "soft"
