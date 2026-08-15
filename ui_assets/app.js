@@ -1,6 +1,5 @@
 const form = document.querySelector("#search-form");
 const queryInput = document.querySelector("#query");
-const maxResultsInput = document.querySelector("#max-results");
 const button = document.querySelector("#search-button");
 const buttonLabel = document.querySelector("#button-label");
 
@@ -77,18 +76,6 @@ const qualityClass = (quality) => {
   return "quality-unknown";
 };
 
-const clampMaxResults = () => {
-  const value = Number.parseInt(maxResultsInput.value, 10);
-
-  const clamped = Number.isFinite(value)
-    ? Math.min(Math.max(value, 1), 100)
-    : 10;
-
-  maxResultsInput.value = clamped;
-
-  return clamped;
-};
-
 const renderEmpty = (message) => {
   results.innerHTML = `
     <div class="empty">
@@ -151,15 +138,14 @@ const renderSearchOverview = () => {
   overview.className = "search-overview";
 
   const skills = currentPlan.skills || [];
-
   const locations = currentPlan.locations || [];
-
   const roleTerms = currentPlan.role_terms || [];
 
   const chips = [...roleTerms, ...skills, ...locations];
 
   overview.innerHTML = `
     <div class="overview-header">
+
       <div>
         <div class="eyebrow">
           SEARCH PLAN
@@ -173,12 +159,14 @@ const renderSearchOverview = () => {
       <span class="plan-badge">
         ${escapeHtml(currentPlan.retrieval_mode || "hybrid")}
       </span>
+
     </div>
 
     <div class="plan-grid">
 
       <div class="plan-item">
         <span>Role</span>
+
         <strong>
           ${escapeHtml(roleTerms.join(", ")) || "Any"}
         </strong>
@@ -186,6 +174,7 @@ const renderSearchOverview = () => {
 
       <div class="plan-item">
         <span>Skills</span>
+
         <strong>
           ${escapeHtml(skills.join(", ")) || "Any"}
         </strong>
@@ -193,6 +182,7 @@ const renderSearchOverview = () => {
 
       <div class="plan-item">
         <span>Location</span>
+
         <strong>
           ${escapeHtml(locations.join(", ")) || "Any"}
         </strong>
@@ -200,6 +190,7 @@ const renderSearchOverview = () => {
 
       <div class="plan-item">
         <span>Gate</span>
+
         <strong>
           ${escapeHtml(currentPlan.gate_mode || "normal")}
         </strong>
@@ -245,15 +236,15 @@ const renderPagination = () => {
       const page = index + 1;
 
       return `
-          <button
-            class="page-button"
-            type="button"
-            data-page="${page}"
-            aria-current="${page === currentPage ? "page" : "false"}"
-          >
-            ${page}
-          </button>
-        `;
+        <button
+          class="page-button"
+          type="button"
+          data-page="${page}"
+          aria-current="${page === currentPage ? "page" : "false"}"
+        >
+          ${page}
+        </button>
+      `;
     },
   ).join("");
 
@@ -287,6 +278,7 @@ const renderResults = () => {
     renderEmpty(currentSummary?.text || "No matching jobs found.");
 
     renderSummary();
+
     return;
   }
 
@@ -313,225 +305,259 @@ const renderResults = () => {
       const url = job.url || "";
 
       return `
-          <article
-            class="job-card"
-            style="
-              animation-delay:
-              ${Math.min(index * 45, 300)}ms
-            "
-          >
+        <article
+          class="job-card"
+          style="
+            animation-delay:
+            ${Math.min(index * 45, 300)}ms
+          "
+        >
 
-            <div class="job-card-header">
+          <div class="job-card-header">
 
-              <div>
-                <div class="job-rank">
-                  #${escapeHtml(job.rank)}
-                </div>
+            <div>
 
-                <h3 class="job-title">
-                  ${escapeHtml(title)}
-                </h3>
-
-                <div class="job-company">
-                  ${escapeHtml(company)}
-                </div>
+              <div class="job-rank">
+                #${escapeHtml(job.rank)}
               </div>
 
-              <span
-                class="
-                  quality-badge
-                  ${qualityClass(quality)}
-                "
-              >
-                ${escapeHtml(qualityLabel(quality))}
-              </span>
+              <h3 class="job-title">
+                ${escapeHtml(title)}
+              </h3>
+
+              <div class="job-company">
+                ${escapeHtml(company)}
+              </div>
 
             </div>
 
-            <div class="job-meta">
+            <span
+              class="
+                quality-badge
+                ${qualityClass(quality)}
+              "
+            >
+              ${escapeHtml(qualityLabel(quality))}
+            </span>
 
-              <span>
-                ${escapeHtml(location)}
+          </div>
+
+          <div class="job-meta">
+
+            <span>
+              ${escapeHtml(location)}
+            </span>
+
+            <span>
+              ${escapeHtml(experience)}
+            </span>
+
+            ${
+              job.employment_type
+                ? `
+                  <span>
+                    ${escapeHtml(job.employment_type)}
+                  </span>
+                `
+                : ""
+            }
+
+          </div>
+
+          <div class="job-score-row">
+
+            <div>
+              <span class="score-label">
+                Match score
               </span>
 
-              <span>
-                ${escapeHtml(experience)}
+              <strong>
+                ${escapeHtml(formatScore(job.job_match_score))}
+              </strong>
+            </div>
+
+            <div>
+              <span class="score-label">
+                Vespa
               </span>
+
+              <strong>
+                ${escapeHtml(formatScore(job.relevance))}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="match-section">
+
+            <div class="match-heading">
+              <span>
+                Matched skills
+              </span>
+            </div>
+
+            <div class="skill-list">
 
               ${
-                job.employment_type
-                  ? `
-                    <span>
-                      ${escapeHtml(job.employment_type)}
+                matched.length
+                  ? matched
+                      .map(
+                        (skill) => `
+                          <span
+                            class="
+                              skill-chip
+                              skill-match
+                            "
+                          >
+                            ✓ ${escapeHtml(skill)}
+                          </span>
+                        `,
+                      )
+                      .join("")
+                  : `
+                    <span
+                      class="
+                        skill-chip
+                        skill-empty
+                      "
+                    >
+                      None
                     </span>
                   `
-                  : ""
               }
 
             </div>
 
-            <div class="job-score-row">
+          </div>
 
-              <div>
-                <span class="score-label">
-                  Match score
-                </span>
+          <div class="match-section">
 
-                <strong>
-                  ${escapeHtml(formatScore(job.job_match_score))}
-                </strong>
-              </div>
-
-              <div>
-                <span class="score-label">
-                  Vespa
-                </span>
-
-                <strong>
-                  ${escapeHtml(formatScore(job.relevance))}
-                </strong>
-              </div>
-
+            <div class="match-heading">
+              <span>
+                Missing skills
+              </span>
             </div>
 
-            <div class="match-section">
-
-              <div class="match-heading">
-                <span>
-                  Matched skills
-                </span>
-              </div>
-
-              <div class="skill-list">
-
-                ${
-                  matched.length
-                    ? matched
-                        .map(
-                          (skill) => `
-                            <span class="skill-chip skill-match">
-                              ✓ ${escapeHtml(skill)}
-                            </span>
-                          `,
-                        )
-                        .join("")
-                    : `
-                      <span class="skill-chip skill-empty">
-                        None
-                      </span>
-                    `
-                }
-
-              </div>
-
-            </div>
-
-            <div class="match-section">
-
-              <div class="match-heading">
-                <span>
-                  Missing skills
-                </span>
-              </div>
-
-              <div class="skill-list">
-
-                ${
-                  missing.length
-                    ? missing
-                        .map(
-                          (skill) => `
-                            <span class="skill-chip skill-missing">
-                              × ${escapeHtml(skill)}
-                            </span>
-                          `,
-                        )
-                        .join("")
-                    : `
-                      <span class="skill-chip skill-empty">
-                        None
-                      </span>
-                    `
-                }
-
-              </div>
-
-            </div>
-
-            <details class="why-section">
-
-              <summary>
-                Why this job matched
-              </summary>
-
-              <div class="why-content">
-
-                <div class="why-item">
-                  <span>Role compatibility</span>
-                  <strong>
-                    ${escapeHtml(formatScore(job.title_score))}
-                  </strong>
-                </div>
-
-                <div class="why-item">
-                  <span>Skill coverage</span>
-                  <strong>
-                    ${escapeHtml(formatScore(job.skill_score))}
-                  </strong>
-                </div>
-
-                <div class="why-item">
-                  <span>Experience</span>
-                  <strong>
-                    ${escapeHtml(formatScore(job.experience_score))}
-                  </strong>
-                </div>
-
-                <div class="why-item">
-                  <span>Location</span>
-                  <strong>
-                    ${escapeHtml(formatScore(job.location_score))}
-                  </strong>
-                </div>
-
-                ${
-                  job.plan_gate_reason
-                    ? `
-                      <p class="gate-reason">
-                        ${escapeHtml(job.plan_gate_reason)}
-                      </p>
-                    `
-                    : ""
-                }
-
-              </div>
-
-            </details>
-
-            <div class="job-card-footer">
+            <div class="skill-list">
 
               ${
-                url
-                  ? `
-                    <a
-                      class="apply-link"
-                      href="${escapeHtml(url)}"
-                      target="_blank"
-                      rel="noreferrer"
+                missing.length
+                  ? missing
+                      .map(
+                        (skill) => `
+                          <span
+                            class="
+                              skill-chip
+                              skill-missing
+                            "
+                          >
+                            × ${escapeHtml(skill)}
+                          </span>
+                        `,
+                      )
+                      .join("")
+                  : `
+                    <span
+                      class="
+                        skill-chip
+                        skill-empty
+                      "
                     >
-                      View job
-                      <span aria-hidden="true">
-                        ↗
-                      </span>
-                    </a>
+                      None
+                    </span>
+                  `
+              }
+
+            </div>
+
+          </div>
+
+          <details class="why-section">
+
+            <summary>
+              Why this job matched
+            </summary>
+
+            <div class="why-content">
+
+              <div class="why-item">
+                <span>
+                  Role compatibility
+                </span>
+
+                <strong>
+                  ${escapeHtml(formatScore(job.title_score))}
+                </strong>
+              </div>
+
+              <div class="why-item">
+                <span>
+                  Skill coverage
+                </span>
+
+                <strong>
+                  ${escapeHtml(formatScore(job.skill_score))}
+                </strong>
+              </div>
+
+              <div class="why-item">
+                <span>
+                  Experience
+                </span>
+
+                <strong>
+                  ${escapeHtml(formatScore(job.experience_score))}
+                </strong>
+              </div>
+
+              <div class="why-item">
+                <span>
+                  Location
+                </span>
+
+                <strong>
+                  ${escapeHtml(formatScore(job.location_score))}
+                </strong>
+              </div>
+
+              ${
+                job.plan_gate_reason
+                  ? `
+                    <p class="gate-reason">
+                      ${escapeHtml(job.plan_gate_reason)}
+                    </p>
                   `
                   : ""
               }
 
             </div>
 
-          </article>
-        `;
+          </details>
+
+          <div class="job-card-footer">
+
+            ${
+              url
+                ? `
+                  <a
+                    class="apply-link"
+                    href="${escapeHtml(url)}"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    View job
+                    <span aria-hidden="true">
+                      ↗
+                    </span>
+                  </a>
+                `
+                : ""
+            }
+
+          </div>
+
+        </article>
+      `;
     })
     .join("");
 
@@ -568,8 +594,6 @@ const runSearch = async (query) => {
     return;
   }
 
-  const maxResults = clampMaxResults();
-
   const startedAt = performance.now();
 
   setLoading(true);
@@ -588,7 +612,6 @@ const runSearch = async (query) => {
 
       body: JSON.stringify({
         query: trimmed,
-        max_results: maxResults,
       }),
     });
 

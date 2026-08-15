@@ -7,8 +7,8 @@ from vespa.package import ApplicationPackage
 
 from ranking.job_ranker import rerank_jobs
 from ranking.match_quality import classify_match
+from ranking.plan_gate import candidate_passes_plan
 from ranking.query_parser import parse_query
-from ranking.relevance_gate import filter_candidates
 
 
 TENANT = "agentic-search"
@@ -189,32 +189,50 @@ def search(
         data
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Stage 1:
-    # Vespa retrieval
-    # --------------------------------------------------------
+    # Plan-aware candidate gating
+    # ========================================================
 
-    eligible_jobs, rejected_jobs = (
-        filter_candidates(
-            jobs,
-            parsed,
+    eligible_jobs: list[
+        dict[str, Any]
+    ] = []
+
+    for job in jobs:
+
+        keep, reason = (
+            candidate_passes_plan(
+                job,
+                _build_search_plan_from_query(
+                    parsed
+                ),
+            )
         )
-    )
 
-    # --------------------------------------------------------
+        job["plan_gate"] = {
+            "eligible": keep,
+            "reason": reason,
+        }
+
+        if keep:
+            eligible_jobs.append(
+                job
+            )
+
+    # ========================================================
     # Stage 2:
     # Job-specific reranking
-    # --------------------------------------------------------
+    # ========================================================
 
     reranked = rerank_jobs(
         eligible_jobs,
         parsed,
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # Stage 3:
     # Match-quality classification
-    # --------------------------------------------------------
+    # ========================================================
 
     for final_rank, job in enumerate(
         reranked,
@@ -223,11 +241,11 @@ def search(
         job["final_rank"] = final_rank
 
         gate = job.get(
-            "relevance_gate",
+            "plan_gate",
             {},
         )
 
-        job["relevance_gate_reason"] = (
+        job["plan_gate_reason"] = (
             gate.get("reason")
         )
 
@@ -239,6 +257,25 @@ def search(
         )
 
     return reranked
+
+
+def _build_search_plan_from_query(
+    parsed: Any,
+):
+    """
+    Build a lightweight SearchPlan-compatible object
+    from a parsed query for the legacy search() API.
+
+    The Phase 12 agentic entry point uses agent.plan_query()
+    directly. This helper keeps job_search.search() compatible
+    with the existing API and test infrastructure.
+    """
+
+    from agent import plan_query
+
+    return plan_query(
+        parsed.raw_query
+    )
 
 
 def main() -> None:
@@ -302,8 +339,8 @@ def main() -> None:
     print()
     print("=" * 75)
     print(
-        "RETRIEVAL + RELEVANCE GATE "
-        "+ RERANKING + MATCH QUALITY"
+        "RETRIEVAL + PLAN GATE + "
+        "RERANKING + MATCH QUALITY"
     )
     print("=" * 75)
 
@@ -322,7 +359,7 @@ def main() -> None:
         print()
         print(
             "No candidates passed the "
-            "relevance gate."
+            "current search plan."
         )
         return
 
@@ -390,11 +427,11 @@ def main() -> None:
         )
 
         print(
-            "Relevance gate:",
+            "Plan gate:",
             job.get(
-                "relevance_gate_reason"
-            )
-            or "N/A",
+                "plan_gate_reason",
+                "N/A",
+            ),
         )
 
         print(

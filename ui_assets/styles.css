@@ -33,6 +33,7 @@
 
 body {
   min-height: 100vh;
+
   margin: 0;
 
   background:
@@ -87,6 +88,7 @@ header {
   display: grid;
 
   width: 34px;
+
   height: 34px;
 
   place-items: center;
@@ -191,7 +193,6 @@ form {
 
   grid-template-columns:
     minmax(260px, 1fr)
-    minmax(120px, 150px)
     auto;
 
   gap: 12px;
@@ -199,8 +200,7 @@ form {
   padding: 12px;
 }
 
-.search-input-wrap,
-.filter-wrap {
+.search-input-wrap {
   display: flex;
 
   align-items: center;
@@ -223,34 +223,14 @@ form {
     background 160ms ease;
 }
 
-.filter-wrap {
-  display: grid;
-
-  gap: 3px;
-
-  align-content: center;
-
-  padding: 9px 14px;
-}
-
-.filter-label {
-  color: var(--muted);
-
-  font-size: 11px;
-
-  font-weight: 700;
-
-  line-height: 1;
-
-  text-transform: uppercase;
-}
-
-.search-input-wrap:focus-within,
-.filter-wrap:focus-within {
+.search-input-wrap:focus-within {
   border-color: rgba(0, 113, 227, 0.5);
+
   background: #fff;
+
   box-shadow: 0 0 0 5px rgba(0, 113, 227, 0.12);
 }
+
 .search-icon {
   flex: 0 0 auto;
 
@@ -262,6 +242,8 @@ input {
 
   min-width: 0;
 
+  height: 62px;
+
   border: 0;
 
   outline: 0;
@@ -271,20 +253,8 @@ input {
   color: var(--ink);
 
   font: inherit;
-}
-
-input {
-  height: 62px;
 
   font-size: 19px;
-}
-
-.filter-wrap input {
-  height: auto;
-
-  font-size: 19px;
-
-  font-weight: 650;
 }
 
 button {

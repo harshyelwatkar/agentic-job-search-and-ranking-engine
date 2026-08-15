@@ -58,12 +58,6 @@ class SearchRequest(BaseModel):
         max_length=500,
     )
 
-    max_results: int = Field(
-        10,
-        ge=1,
-        le=100,
-    )
-
 
 # ============================================================
 # Helpers
@@ -318,12 +312,10 @@ def search(
         )
 
         # ----------------------------------------------------
-        # 4. Limit frontend results
+        # 4. Use a fixed frontend result limit
         # ----------------------------------------------------
 
-        visible_jobs = jobs[
-            : payload.max_results
-        ]
+        visible_jobs = jobs[:10]
 
         results = [
             _serialize_job(job)
