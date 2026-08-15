@@ -259,28 +259,28 @@ This is preferred to returning an unrelated job simply because one keyword or sk
 ├── job_hybrid.py
 ├── job_search.py
 ├── job_data/
-│ ├── candidate_jobs.jsonl
-│ ├── extract_jobs.py
-│ ├── filter_jobs.py
-│ ├── jobs_clean.jsonl
-│ ├── jobs.jsonl
-│ └── normalize_jobs.py
+│   ├── candidate_jobs.jsonl
+│   ├── extract_jobs.py
+│   ├── filter_jobs.py
+│   ├── jobs_clean.jsonl
+│   ├── jobs.jsonl
+│   └── normalize_jobs.py
 ├── ranking/
-│ ├── evaluate_ranking.py
-│ ├── **init**.py
-│ ├── job_ranker.py
-│ ├── match_quality.py
-│ ├── plan_gate.py
-│ ├── query_parser.py
-│ ├── ranking_report_baseline.json
-│ ├── search_explanation.py
-│ ├── test_local_ranking.py
-│ └── test_queries.json
+│   ├── evaluate_ranking.py
+│   ├── __init__.py
+│   ├── job_ranker.py
+│   ├── match_quality.py
+│   ├── plan_gate.py
+│   ├── query_parser.py
+│   ├── ranking_report_baseline.json
+│   ├── search_explanation.py
+│   ├── test_local_ranking.py
+│   └── test_queries.json
 ├── ui.py
 ├── ui_assets/
-│ ├── app.js
-│ ├── index.html
-│ └── styles.css
+│   ├── app.js
+│   ├── index.html
+│   └── styles.css
 ├── README.md
 ├── .gitignore
 ├── pyproject.toml
