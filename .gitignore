@@ -77,3 +77,5 @@ job_data/jobs_clean.jsonl
 
 # Generated evaluation artifacts
 ranking/ranking_report_baseline.json
+# Generated offline benchmark report
+ranking/offline_benchmark_report.json

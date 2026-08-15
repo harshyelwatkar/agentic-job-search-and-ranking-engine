@@ -52,61 +52,55 @@ def classify_match(
         parsed.locations
     )
 
-    # --------------------------------------------------------
-    # STRONG
-    # --------------------------------------------------------
+    has_experience_constraint = (
+        parsed.experience_years is not None
+        or parsed.entry_level
+        or parsed.senior_level
+    )
 
+    location_ok = (
+        not has_location
+        or location >= 1.0
+    )
+
+    experience_ok = (
+        not has_experience_constraint
+        or experience >= 1.0
+    )
+
+    # Strong matches should satisfy the main constraints,
+    # not just have a good title score.
     if has_role and has_skills:
-
         if (
             role >= 0.85
             and skills >= 0.75
-            and (
-                not has_location
-                or location >= 1.0
-            )
+            and location_ok
+            and experience_ok
         ):
             return "strong"
 
     if has_role and not has_skills:
-
         if (
             role >= 0.85
-            and (
-                not has_location
-                or location >= 1.0
-            )
+            and location_ok
+            and experience_ok
         ):
             return "strong"
 
-    # --------------------------------------------------------
-    # PARTIAL
-    # --------------------------------------------------------
-
-    if has_skills:
-
-        # At least one requested skill matched.
-        if matched_skills:
-
-            # A meaningful skill match with a compatible
-            # role is partial.
-            if (
-                role >= 0.30
-                or skills >= 0.50
-            ):
-                return "partial"
+    # Partial matches can satisfy some, but not all,
+    # requested dimensions.
+    if has_skills and matched_skills:
+        if (
+            role >= 0.30
+            or skills >= 0.50
+        ):
+            return "partial"
 
     if has_role:
-
-        # Role-only partial match.
         if (
             role >= 0.30
             and not missing_skills
         ):
             return "partial"
-
-    # --------------------------------------------------------
-    # WEAK
-    # --------------------------------------------------------
 
     return "weak"
