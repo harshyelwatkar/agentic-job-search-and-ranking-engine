@@ -1,0 +1,79 @@
+# ============================================================
+# Python
+# ============================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build / packaging
+build/
+dist/
+wheels/
+*.egg-info/
+
+# ============================================================
+# Virtual environments
+# ============================================================
+
+.venv/
+venv/
+env/
+
+# ============================================================
+# Environment / secrets
+# ============================================================
+
+.env
+.env.*
+!.env.example
+
+*.pem
+*.key
+auth.json
+
+# ============================================================
+# Vespa local state
+# ============================================================
+
+.vespa/
+vespa/
+validation-overrides.xml
+
+# ============================================================
+# Logs / temporary files
+# ============================================================
+
+*.log
+*.tmp
+*.temp
+
+# ============================================================
+# OS / editor files
+# ============================================================
+
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+
+# ============================================================
+# Local test / generated artifacts
+# ============================================================
+
+*.pyc
+coverage.xml
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local job corpus
+job_data/candidate_jobs.jsonl
+job_data/jobs.jsonl
+job_data/jobs_clean.jsonl
+
+# Generated evaluation artifacts
+ranking/ranking_report_baseline.json

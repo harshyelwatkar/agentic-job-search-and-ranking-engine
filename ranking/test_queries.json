@@ -1,0 +1,32 @@
+{
+  "queries": [
+    {
+      "id": "q1",
+      "query": "React Node.js full stack developer"
+    },
+    {
+      "id": "q2",
+      "query": "Python backend AWS engineer"
+    },
+    {
+      "id": "q3",
+      "query": "Java Spring Boot developer"
+    },
+    {
+      "id": "q4",
+      "query": "machine learning engineer"
+    },
+    {
+      "id": "q5",
+      "query": "data engineer SQL"
+    },
+    {
+      "id": "q6",
+      "query": "software engineer remote"
+    },
+    {
+      "id": "q7",
+      "query": "entry level software engineer"
+    }
+  ]
+}

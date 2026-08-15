@@ -1,0 +1,15 @@
+[project]
+name = "agentic-job-search-and-ranking-engine"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "datasets>=4.4.1",
+    "fastapi>=0.141.1",
+    "pandas>=2.3.3",
+    "pydantic>=2.13.4",
+    "pyvespa>=0.62.0",
+    "uvicorn[standard]>=0.52.1",
+    "vespacli>=8.733.3",
+]
