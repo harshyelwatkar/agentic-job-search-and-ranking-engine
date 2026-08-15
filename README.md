@@ -178,10 +178,12 @@ Provides:
 
 ### Frontend
 
+```text
 ui_assets/
 ├── index.html
 ├── app.js
 └── styles.css
+```
 
 The interface displays:
 
@@ -199,29 +201,39 @@ The interface displays:
 
 Create/activate the environment and run the application with:
 
+```bash
 uv run uvicorn ui:app --reload
+```
 
 Then open:
 
+```text
 http://127.0.0.1:8000
+```
 
 Health check:
 
+```bash
 curl http://127.0.0.1:8000/api/health
+```
 
 Expected response:
 
+```json
 {
-"status": "ok",
-"service": "agentic-job-search"
+  "status": "ok",
+  "service": "agentic-job-search"
 }
+```
 
 ## Local Regression Tests
 
 The ranking and gating logic can be tested without contacting Vespa:
 
+```bash
 uv run python -m py_compile ranking/test_local_ranking.py
 uv run python ranking/test_local_ranking.py
+```
 
 The test suite covers:
 
@@ -287,7 +299,7 @@ This is preferred to returning an unrelated job simply because one keyword or sk
 ├── pyproject.toml
 ├── .python-version
 └── uv.lock
-```text
+```
 
 ## Validation Philosophy
 
